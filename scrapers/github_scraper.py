@@ -1,6 +1,5 @@
 # scrapers/github_scraper.py
 import httpx
-import asyncio
 from typing import Dict, Union, List
 
 async def scrape_github(username: str) -> Dict[str, Union[str, List[Dict]]]:
@@ -33,7 +32,8 @@ async def scrape_github(username: str) -> Dict[str, Union[str, List[Dict]]]:
                     "language": repo.get("language"),
                     "stargazers_count": repo.get("stargazers_count"),
                     "forks_count": repo.get("forks_count"),
-                    "created_at": repo.get("created_at")
+                    "created_at": repo.get("created_at"),
+                    "updated_at": repo.get("updated_at")
                 })
 
             return {
@@ -47,26 +47,8 @@ async def scrape_github(username: str) -> Dict[str, Union[str, List[Dict]]]:
                     "following": user_data.get("following"),
                     "created_at": user_data.get("created_at")
                 },
-                "repositories": extracted_repos
+                "repositories": sorted(extracted_repos, key=lambda x: x["stargazers_count"], reverse=True)
             }
+
     except Exception as e:
         return {"error": f"Failed to fetch GitHub data: {str(e)}"}
-        extracted_repos.append({
-            "name": repo.get("name"),
-            "html_url": repo.get("html_url"),
-            "description": repo.get("description"),
-            "language": repo.get("language"),
-            "stargazers_count": repo.get("stargazers_count"),
-            "forks_count": repo.get("forks_count"),
-            "created_at": repo.get("created_at"),
-            "updated_at": repo.get("updated_at")
-        })
-
-    return {
-        "platform": "github",
-        "target": username,
-        "data": {
-            "profile": user_data,
-            "repos": sorted(extracted_repos, key=lambda x: x["stargazers_count"], reverse=True)
-        }
-    }
