@@ -1,0 +1,28 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Your FastAPI Application Service
+  api:
+    build: .  # Build the image from the Dockerfile in the current directory
+    container_name: scraper_api
+    ports:
+      - "5000:5000"  # Map port 5000 on your computer to port 5000 in the container
+    volumes:
+      - .:/app  # Mount your project directory into the container for live reloading
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY} # Pass the API key from your .env file
+    depends_on:
+      - redis  # Tell Docker that this service depends on the 'redis' service
+
+  # The Redis Caching Service
+  redis:
+    image: "redis:alpine" # Use the official lightweight Redis image
+    container_name: redis_cache
+    ports:
+      - "6379:6379" # Map the Redis port so you can connect from your computer if needed
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
